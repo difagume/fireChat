@@ -14,50 +14,57 @@ export class ChatService {
 
   constructor(private afs: AngularFirestore, public afAuth: AngularFireAuth) {
 
-    this.afAuth.authState.subscribe(user=>{
+    this.afAuth.authState.subscribe(user => {
 
-      console.log('Estado del usuario: ',user);
+      console.log('Estado del usuario: ', user);
 
-      if(!user){
+      if (!user) {
         return;
       }
 
-      this.usuario.nombre=user.displayName;
-      this.usuario.uid=user.uid;      
+      this.usuario.nombre = user.displayName;
+      this.usuario.uid = user.uid;
     });
-   }
+  }
 
   cargarMensajes() {
     this.itemsCollection = this.afs.collection<Mensaje>('chats', ref => ref.orderBy('fecha', 'desc').limit(5));
     return this.itemsCollection.valueChanges()
-      .map((mensajes: Mensajes[]) => {
+      .map((mensajes: Mensaje[]) => {
         console.log(mensajes);
 
         // Para ordenar
         this.chats = [];
-        for (let mensaje of mensajes) {
+        for (const mensaje of mensajes) {
           this.chats.unshift(mensaje);
         }
         return this.chats;
-      })
+      });
   }
 
   // TODO falta el uid del usuario
   agregarMensaje(texto: string) {
-    let mensaje: Mensaje{
-      nombre:'Demo',
-      mensaje: texto,
-      fecha: (new Date).getTime()
+    let message: Mensaje {
+      nombre = 'Demo',
+      mensaje = texto,
+      fecha = (new Date).getTime(),
+    };
+
+    return this.itemsCollection.add(message);
   }
 
-    return this.itemsCollection.add(mensaje);
+  login(proveedor: string) {
+    if (proveedor === 'google') {
+      this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    } else if (proveedor === 'twitter') {
+      this.afAuth.auth.signInWithPopup(new firebase.auth.TwitterAuthProvider());
+    }
+
   }
 
-login(proveedor: string) {
-  this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-}
-logout() {
-  this.afAuth.auth.signOut();
-}
+  logout() {
+    this.usuario = {};
+    this.afAuth.auth.signOut();
+  }
 
 }

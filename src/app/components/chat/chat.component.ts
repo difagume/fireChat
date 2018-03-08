@@ -19,7 +19,7 @@ export class ChatComponent implements OnInit {
 
         setTimeout(() => {
           this.elemento.scrollTop = this.elemento.scrollHeight;
-        }, 20)
+        }, 20);
 
       });
   }
@@ -40,3 +40,4 @@ export class ChatComponent implements OnInit {
       .catch((err) => console.error('Error al enviar', err));
 
   }
+}
